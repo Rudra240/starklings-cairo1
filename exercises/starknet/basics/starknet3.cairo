@@ -25,7 +25,7 @@ mod ProgressTracker {
     struct Storage {
         contract_owner: ContractAddress,
         // TODO: Set types for LegacyMap
-        progress: LegacyMap<>
+        progress: LegacyMap<ContractAddress, u16>
     }
 
     #[constructor]
@@ -39,10 +39,16 @@ mod ProgressTracker {
         fn set_progress(
             ref self: ContractState, user: ContractAddress, new_progress: u16
         ) { // TODO: assert owner is calling
-        // TODO: set new_progress for user,
+            assert(
+                self.contract_owner.read() == get_caller_address(),
+                "Only the owner can set progress"
+            );
+            // TODO: set new_progress for user,
+            self.progress[user] = new_progress;
         }
 
         fn get_progress(self: @ContractState, user: ContractAddress) -> u16 { // Get user progress
+            self.progress[user]
         }
 
         fn get_contract_owner(self: @ContractState) -> ContractAddress {

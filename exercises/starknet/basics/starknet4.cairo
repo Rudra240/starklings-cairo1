@@ -24,7 +24,8 @@ mod LizInventory {
     #[storage]
     struct Storage {
         contract_owner: ContractAddress,
-        // TODO: add storage inventory, that maps product (felt252) to stock quantity (u32)
+        inventory: LegacyMap<felt252, u32>,
+    // TODO: add storage inventory, that maps product (felt252) to stock quantity (u32)
     }
 
     #[constructor]
@@ -35,24 +36,27 @@ mod LizInventory {
 
     #[external(v0)]
     impl LizInventoryImpl of super::ILizInventory<ContractState> {
-        fn add_stock(ref self: ContractState, ) {
-            // TODO:
+        fn add_stock(ref self: ContractState, product: felt252, new_stock: u32) { // TODO:
             // * takes product and new_stock
             // * adds new_stock to stock in inventory
             // * only owner can call this
+            assert(
+                self.contract_owner.read() == get_caller_address(), "Only the owner can add stock"
+            );
+            self.inventory[product] += new_stock;
         }
 
-        fn purchase(ref self: ContractState, ) {
-            // TODO:
+        fn purchase(ref self: ContractState, product: felt252, quantity: u32) { // TODO:
             // * takes product and quantity
             // * subtracts quantity from stock in inventory
             // * anybody can call this
+            self.inventory[product] -= quantity;
         }
 
-        fn get_stock(self: @ContractState, ) -> u32 {
-            // TODO:
+        fn get_stock(self: @ContractState, product: felt252) -> u32 { // TODO:
             // * takes product
             // * returns product stock in inventory
+            self.inventory[product]
         }
 
         fn get_owner(self: @ContractState) -> ContractAddress {
